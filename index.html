@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F6F7FB">
+  <title>Планировщик покупок</title>
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="brand">
+      <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 9h16l-2 11H6L4 9Z"/><path d="m8 9 4-6 4 6M9 12v5m6-5v5"/></svg></span>
+      <div><p class="eyebrow">ВАШ СПИСОК ПОД РУКОЙ</p><h1>Планировщик покупок</h1></div>
+    </header>
+    <nav class="navigation" aria-label="Разделы планировщика">
+      <button data-section="current" aria-current="page">Текущий поход</button><button data-section="catalog">Каталог</button><button data-section="history">История</button>
+    </nav>
+    <noscript><p class="notice error">Для работы планировщика включите JavaScript в браузере.</p></noscript>
+    <p id="storage-error" class="notice error" role="alert" hidden></p>
+    <div id="quota-actions" class="recovery-actions" hidden><button data-cleanup="history" class="secondary">Открыть историю</button><button data-cleanup="catalog" class="secondary">Открыть каталог</button></div>
+    <button id="resume-draft" class="secondary" hidden>Вернуться к несохранённой покупке</button>
+    <section id="data-protection" class="card protection" aria-labelledby="protection-title" hidden>
+      <h2 id="protection-title">Не удалось прочитать сохранённые данные</h2><p id="protection-text" class="muted"></p>
+      <div class="recovery-actions"><button id="retry-read" class="primary">Попробовать снова</button><button id="reset-data" class="danger-text">Сбросить данные</button></div>
+    </section>
+    <main>
+      <section id="empty" class="card empty-state" aria-labelledby="empty-title" hidden>
+        <span class="empty-symbol" aria-hidden="true">＋</span>
+        <h2 id="empty-title">Текущего похода пока нет</h2>
+        <p>Составьте список перед магазином,<br>а покупки отмечайте по дороге.</p>
+        <button id="create-trip" class="primary">Создать поход</button>
+      </section>
+      <section id="trip" aria-labelledby="trip-title" hidden>
+        <div class="trip-heading">
+          <div><p class="eyebrow">ТЕКУЩИЙ ПОХОД</p><h2 id="trip-title"></h2><p id="trip-date" class="muted"></p></div>
+          <button id="edit-trip" class="secondary">Изменить поход</button>
+        </div>
+        <section class="card add-card" aria-labelledby="add-title">
+          <h3 id="add-title">Добавить покупку</h3>
+          <form id="add-form" novalidate>
+            <div class="field name-field"><label for="add-name">Название</label><input id="add-name" name="name" maxlength="100" placeholder="Например, молоко" autocomplete="off" aria-describedby="add-name-error" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="add-suggestions"><ul id="add-suggestions" class="suggestions" role="listbox" aria-label="Сохранённые названия" hidden></ul><span id="add-name-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+            <div class="field quantity-field"><label for="add-quantity">Количество</label><div class="quantity-control"><input id="add-quantity" name="quantity" type="text" inputmode="decimal" value="1" autocomplete="off" aria-describedby="add-quantity-error"><button type="button" data-quantity="add" data-direction="1" aria-label="Увеличить количество" title="Увеличить на 1"><span aria-hidden="true">▲</span></button><button type="button" data-quantity="add" data-direction="-1" aria-label="Уменьшить количество" title="Уменьшить на 1"><span aria-hidden="true">▼</span></button></div><span id="add-quantity-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+            <div class="field"><label for="add-unit">Единица</label><select id="add-unit" name="unit"><option>шт.</option><option>кг</option><option>г</option><option>л</option><option>мл</option><option>уп.</option></select></div>
+            <button class="primary add-button" type="submit">Добавить</button>
+          </form>
+        </section>
+        <section class="card list-card" aria-labelledby="list-title">
+          <div class="list-heading"><h3 id="list-title">Список покупок</h3><span id="progress" class="progress" aria-live="polite"></span></div>
+          <div class="filters" role="group" aria-label="Показать покупки"><button data-filter="all" aria-pressed="true">Все</button><button data-filter="remaining" aria-pressed="false">Осталось</button><button data-filter="purchased" aria-pressed="false">Куплено</button></div>
+          <ul id="items" class="items"></ul><p id="list-empty" class="list-empty"></p>
+        </section>
+        <div class="trip-footer"><button id="transfer-trip" class="secondary">Перенести некупленное</button><button id="complete-trip" class="secondary">Завершить поход</button><button id="delete-trip" class="danger-text">Удалить поход</button></div>
+      </section>
+      <section id="catalog-section" aria-labelledby="catalog-title" hidden>
+        <div class="trip-heading"><div><p class="eyebrow">БЕЗ ПОВТОРНОГО ВВОДА</p><h2 id="catalog-title">Каталог товаров</h2><p class="muted">Все названия, которые вы уже добавляли.</p></div></div>
+        <div class="card list-card"><div class="field search-field"><label for="catalog-search">Поиск по названию</label><input id="catalog-search" type="search" placeholder="Найти товар" autocomplete="off"></div><ul id="catalog-list" class="items"></ul><p id="catalog-empty" class="list-empty"></p></div>
+      </section>
+      <section id="history-section" aria-labelledby="history-title" hidden>
+        <div class="trip-heading"><div><p class="eyebrow">ПРОШЛЫЕ ПОКУПКИ</p><h2 id="history-title">История походов</h2><p class="muted">Завершённые списки — только для просмотра.</p></div><button id="clear-history" class="danger-text">Очистить историю</button></div>
+        <div id="history-list" class="history-list"></div><p id="history-empty" class="card list-empty">Завершённые походы появятся здесь</p>
+        <section id="history-detail" class="card list-card" aria-labelledby="history-detail-title" hidden>
+          <button id="back-history" class="secondary">← К списку походов</button>
+          <h3 id="history-detail-title" tabindex="-1"></h3><p id="history-detail-date" class="muted"></p><p id="history-detail-completed" class="muted"></p><p id="transfer-info" class="notice" hidden></p>
+          <p id="history-progress" class="progress"></p>
+          <div class="filters" role="group" aria-label="Показать товары в истории"><button data-history-filter="all" aria-pressed="true">Все</button><button data-history-filter="remaining" aria-pressed="false">Осталось</button><button data-history-filter="purchased" aria-pressed="false">Куплено</button></div>
+          <ul id="history-items" class="items"></ul><p id="history-items-empty" class="list-empty"></p><button id="delete-history-trip" class="danger-text">Удалить поход</button>
+        </section>
+        <p id="storage-size" class="muted"></p>
+      </section>
+      <div id="size-warning" class="notice warning" role="status" hidden><p>Данных стало много. Чтобы снизить риск ошибки сохранения, удалите ненужные походы из истории или названия из каталога.</p><div class="recovery-actions"><button data-cleanup="history" class="secondary">Открыть историю</button><button data-cleanup="catalog" class="secondary">Открыть каталог</button></div></div>
+    </main>
+    <section id="offline-panel" class="offline-panel" aria-label="Работа без интернета" hidden>
+      <p id="offline-status" role="status"></p><p id="network-status" class="muted" hidden>Нет подключения к интернету</p>
+      <p id="update-status" class="muted" role="status" hidden>Обновление готово. Закройте все вкладки планировщика и откройте его снова.</p>
+      <div class="recovery-actions"><button id="retry-offline" class="secondary" hidden>Повторить подготовку</button><button id="install-app" class="primary" hidden>Установить на телефон</button><button id="install-help" class="secondary">Как добавить на главный экран</button></div>
+      <p id="file-notice" class="muted" hidden>Для повторного запуска без интернета откройте планировщик по HTTPS-ссылке. Для разработки допустим localhost; открытие файла напрямую не готовит офлайн-режим.</p>
+    </section>
+    <footer class="app-footer">Данные хранятся только в этом браузере. Очистка данных сайта удалит списки. Для офлайн-запуска сначала дождитесь сообщения о готовности.</footer>
+  </div>
+  <div id="notification" class="notification" hidden><span id="notification-text" role="status"></span><button id="undo" hidden>Отменить</button></div>
+  <dialog id="trip-dialog" aria-labelledby="trip-dialog-title">
+    <form id="trip-form" novalidate>
+      <h2 id="trip-dialog-title">Создать поход</h2>
+      <p id="transfer-note" class="muted" hidden></p>
+      <div class="field"><label for="trip-name">Название похода</label><input id="trip-name" maxlength="80" aria-describedby="trip-name-error"><span id="trip-name-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+      <div class="field"><label for="trip-date-input">Дата</label><input id="trip-date-input" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="trip-date-input-error"><span id="trip-date-input-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+      <div class="dialog-actions"><button type="button" data-close="trip-dialog" class="secondary">Отмена</button><button id="save-trip" type="submit" class="primary">Создать</button></div>
+    </form>
+  </dialog>
+  <dialog id="item-dialog" aria-labelledby="item-dialog-title">
+    <form id="item-form" novalidate>
+      <h2 id="item-dialog-title">Изменить покупку</h2>
+      <div class="field name-field"><label for="edit-name">Название</label><input id="edit-name" maxlength="100" autocomplete="off" aria-describedby="edit-name-error" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="edit-suggestions"><ul id="edit-suggestions" class="suggestions" role="listbox" aria-label="Сохранённые названия" hidden></ul><span id="edit-name-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+      <div class="quantity-fields"><div class="field quantity-field"><label for="edit-quantity">Количество</label><div class="quantity-control"><input id="edit-quantity" type="text" inputmode="decimal" aria-describedby="edit-quantity-error"><button type="button" data-quantity="edit" data-direction="1" aria-label="Увеличить количество" title="Увеличить на 1"><span aria-hidden="true">▲</span></button><button type="button" data-quantity="edit" data-direction="-1" aria-label="Уменьшить количество" title="Уменьшить на 1"><span aria-hidden="true">▼</span></button></div><span id="edit-quantity-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div><div class="field"><label for="edit-unit">Единица</label><select id="edit-unit"><option>шт.</option><option>кг</option><option>г</option><option>л</option><option>мл</option><option>уп.</option></select></div></div>
+      <div class="dialog-actions"><button type="button" data-close="item-dialog" class="secondary">Отмена</button><button type="submit" class="primary">Сохранить</button></div>
+    </form>
+  </dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+    <h2 id="confirm-title"></h2><p id="confirm-text"></p>
+    <div class="dialog-actions"><button id="confirm-cancel" class="secondary">Отмена</button><button id="confirm-transfer" class="secondary" hidden>Перенести некупленное</button><button id="confirm-ok" class="primary"></button></div>
+  </dialog>
+  <dialog id="conflict-dialog" aria-labelledby="conflict-title" aria-describedby="conflict-text">
+    <h2 id="conflict-title">Данные изменены в другой вкладке</h2><p id="conflict-text">Обновите данные, чтобы продолжить. Несохранённый ввод будет отброшен.</p><div class="dialog-actions"><button id="refresh-data" class="primary">Обновить данные</button></div>
+  </dialog>
+  <dialog id="install-dialog" aria-labelledby="install-title"><h2 id="install-title">Добавить на главный экран</h2><p>На Android нажмите «Установить на телефон», если кнопка появилась. Также проверьте меню браузера: «Установить приложение» или «Добавить на главный экран».</p><p>На iPhone откройте сайт в Safari, нажмите «Поделиться», выберите «На экран Домой» и подтвердите.</p><p class="muted">Названия пунктов зависят от браузера. Установка не обязательна для работы без сети: сначала дождитесь сообщения «Готово к работе без интернета».</p><div class="dialog-actions"><button data-close="install-dialog" class="primary">Понятно</button></div></dialog>
+</body>
+</html>
+

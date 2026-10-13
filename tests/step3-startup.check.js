@@ -1,0 +1,22 @@
+async(page)=>{
+  const checks=[],KEY='shopping-planner.state.v1';const check=(v,n)=>{if(!v)throw Error(n);checks.push(n);};
+  const context=await page.context().browser().newContext({viewport:{width:320,height:812}});
+  try{
+    await context.addInitScript(key=>{window.denyReads=true;window.nativeGet=Storage.prototype.getItem;Storage.prototype.getItem=function(k){if(k===key&&denyReads)throw new DOMException('denied','SecurityError');return nativeGet.call(this,k);};},KEY);
+    const q=await context.newPage();await q.goto('http://127.0.0.1:4173');check(await q.locator('#data-protection').isVisible()&&await q.locator('#reset-data').isHidden()&&await q.locator('#empty').isHidden(),'Недоступное чтение при старте не выглядит первым запуском');
+    await q.evaluate(()=>window.denyReads=false);await q.locator('#retry-read').click();check(await q.locator('#empty').isVisible(),'Повтор чтения после восстановления доступа');
+    await q.locator('#create-trip').click();await q.locator('#save-trip').click();await q.locator('#add-name').fill('Молоко');await q.locator('#add-form button[type=submit]').click();await q.locator('.item .edit').click();await q.locator('#edit-name').fill('Черновик в форме');
+    const other=await context.newPage();await other.goto('http://127.0.0.1:4173');await other.evaluate(()=>window.denyReads=false);await other.locator('#retry-read').click();await other.locator('#add-name').fill('Хлеб');await other.locator('#add-form button[type=submit]').click();await q.locator('#conflict-dialog').waitFor({state:'visible'});
+    check(await q.locator('#item-dialog').isVisible()&&await q.locator('#edit-name').inputValue()==='Черновик в форме','Блокировка сохраняет открытый черновик до обновления');await q.screenshot({path:'C:/Users/User/Documents/ChatGPT/Планировщик покупок/.qa/step3-conflict.png',fullPage:true});
+    await q.locator('#refresh-data').click();check(await q.locator('#item-dialog').isHidden()&&await q.locator('.item').count()===2,'Обновление закрывает устаревшие диалоги');
+    await q.locator('#add-name').fill('Главный черновик');await q.evaluate(key=>{window.savedSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===key&&v.length>nativeGet.call(localStorage,key).length)throw new DOMException('quota','QuotaExceededError');return savedSet.call(this,k,v);};},KEY);await q.locator('#add-form button[type=submit]').click();await q.locator('#quota-actions [data-cleanup=catalog]').click();check(await q.locator('#add-name').inputValue()==='Главный черновик','Основной черновик сохраняется при переходе к очистке');
+    await q.getByRole('button',{name:'Удалить из каталога: Молоко',exact:true}).click();await q.locator('#confirm-ok').click();await q.locator('[data-section=current]').click();check(await q.locator('#add-name').inputValue()==='Главный черновик','Удаление каталога сохраняет основной черновик');await q.evaluate(()=>Storage.prototype.setItem=savedSet);await q.locator('#add-form button[type=submit]').click();check(await q.locator('.item-name').allTextContents().then(a=>a.includes('Главный черновик')),'Основной черновик можно сохранить после очистки');
+    await other.evaluate(key=>localStorage.setItem(key,'{'),KEY);await q.locator('#conflict-dialog').waitFor({state:'visible'});await q.locator('#refresh-data').click();check(await q.locator('#data-protection').isVisible(),'Внешнее повреждение после обновления открывает защиту');
+    check(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Экран защиты помещается на 320px');
+  }finally{await context.close();}
+  const writes=await page.context().browser().newContext();
+  try{
+    await writes.addInitScript(()=>{window.denyWrites=true;window.savedSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(denyWrites)throw new DOMException('denied','SecurityError');return savedSet.call(this,k,v);};});const q=await writes.newPage();await q.goto('http://127.0.0.1:4173');check(await q.locator('#storage-error').isVisible(),'Первый запуск показывает недоступность записи');await q.locator('#create-trip').click();await q.locator('#save-trip').click();check(await q.locator('#trip-dialog').isVisible()&&await q.evaluate(key=>localStorage.getItem(key),KEY)===null,'При запрете записи создание не сообщает об успехе');await q.evaluate(()=>window.denyWrites=false);await q.locator('#save-trip').click();check(await q.locator('#trip').isVisible(),'Повтор записи после восстановления доступа');
+  }finally{await writes.close();}
+  return {passed:checks.length,checks};
+}

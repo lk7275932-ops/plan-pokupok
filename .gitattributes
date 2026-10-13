@@ -1,0 +1,6 @@
+# Байты файлов выпуска должны совпадать с SHA-256 в service worker.
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.webmanifest text eol=lf
+*.png -text
