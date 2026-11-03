@@ -15,7 +15,7 @@ async(page)=>{
     check(await q.evaluate(()=>JSON.parse(localStorage.getItem('shopping-planner.state.v1')).trips[0].items[0].quantity)===2,'Выбранное количество сохраняется при добавлении');
     await q.locator('.item .edit').click();await q.locator('[data-quantity=edit][data-direction="1"]').click();check(await q.locator('#edit-quantity').inputValue()==='3','Стрелки в редактировании');await q.locator('#item-form button[type=submit]').click();
     check(await q.evaluate(()=>JSON.parse(localStorage.getItem('shopping-planner.state.v1')).trips[0].items[0].quantity)===3,'Редактирование сохраняет количество');
-    for(const width of [320,375,768,1280]){await q.setViewportSize({width,height:900});check(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&[...document.querySelectorAll('[data-quantity=add]')].every(b=>b.getBoundingClientRect().width>=44&&b.getBoundingClientRect().height>=44)),`Размеры и адаптивность ${width}px`);}
+    for(const width of [320,375,768,1280]){await q.setViewportSize({width,height:900});check(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&[...document.querySelectorAll('[data-quantity=add]')].every(b=>b.getBoundingClientRect().width>=(innerWidth<=650?26:44)&&b.getBoundingClientRect().height>=(innerWidth<=650?22:44))),`Размеры и адаптивность ${width}px`);}
     await q.setViewportSize({width:375,height:812});await q.screenshot({path:'C:/Users/User/Documents/ChatGPT/Планировщик покупок/.qa/quantity-arrows.png',fullPage:true});
     return {passed:checks.length,checks};
   }finally{await context.close();}

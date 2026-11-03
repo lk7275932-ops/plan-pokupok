@@ -1,8 +1,8 @@
 'use strict';
 // При выпуске: обновить хэши (node tests/update-cache-hashes.cjs) и VERSION.
 // Старые вкладки завершают работу сами; skipWaiting намеренно не используется.
-const VERSION='v3';
-const HASHES={"index.html":"9634ab2245ec311e80a83b2892d02cb08e706c41f88a25e05e250a93c6187b6b","style.css":"cdf082ca1ba2c08c48036fbbf3bb0b89c490dd7ec125d7300997d14fa880444c","script.js":"5d66d1e0cc03bee53e89a807764b46b7250efbb4cabed42a3db901ea5b15d702","manifest.webmanifest":"63e711c5a76ba9a56ecb785d8d00017a127bb1878fbdffb64d2110fd64fc1734","icons/icon-192.png":"6b4f66528fdf77ded113904a2f5cce416e9730fd4cfee7b2915e15db889345ea","icons/icon-512.png":"99c93c1a37e1b724d5bfd79d449f7a32449694ea2ad68035e25a9bfab13c40b9"}; // SHA-256 каждого файла; обновляется инструментом выпуска.
+const VERSION='v4';
+const HASHES={"index.html":"91c02d90b28adac4ba26fc854fe690b42386fbf8f7555f115ea131e6eb59277a","style.css":"9913a43b960417a3cdac4eb6f31ddf937d3e1b10bea82117c9cb57eb109f344a","script.js":"5d66d1e0cc03bee53e89a807764b46b7250efbb4cabed42a3db901ea5b15d702","manifest.webmanifest":"63e711c5a76ba9a56ecb785d8d00017a127bb1878fbdffb64d2110fd64fc1734","icons/icon-192.png":"6b4f66528fdf77ded113904a2f5cce416e9730fd4cfee7b2915e15db889345ea","icons/icon-512.png":"99c93c1a37e1b724d5bfd79d449f7a32449694ea2ad68035e25a9bfab13c40b9"}; // SHA-256 каждого файла; обновляется инструментом выпуска.
 const BASE=new URL('./',self.location.href);
 const PREFIX='shopping-planner-app-'+encodeURIComponent(BASE.pathname)+'-';
 const CACHE=PREFIX+VERSION;

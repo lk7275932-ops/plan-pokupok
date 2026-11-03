@@ -43,10 +43,10 @@
         <section class="card add-card" aria-labelledby="add-title">
           <h3 id="add-title">Добавить покупку</h3>
           <form id="add-form" novalidate>
-            <div class="field name-field"><label for="add-name">Название</label><input id="add-name" name="name" maxlength="100" placeholder="Например, молоко" autocomplete="off" aria-describedby="add-name-error" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="add-suggestions"><ul id="add-suggestions" class="suggestions" role="listbox" aria-label="Сохранённые названия" hidden></ul><span id="add-name-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
+            <div class="field name-field"><label for="add-name">Название</label><input id="add-name" name="name" maxlength="100" placeholder="Товар" autocomplete="off" aria-describedby="add-name-error" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="add-suggestions"><ul id="add-suggestions" class="suggestions" role="listbox" aria-label="Сохранённые названия" hidden></ul><span id="add-name-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
             <div class="field quantity-field"><label for="add-quantity">Количество</label><div class="quantity-control"><input id="add-quantity" name="quantity" type="text" inputmode="decimal" value="1" autocomplete="off" aria-describedby="add-quantity-error"><button type="button" data-quantity="add" data-direction="1" aria-label="Увеличить количество" title="Увеличить на 1"><span aria-hidden="true">▲</span></button><button type="button" data-quantity="add" data-direction="-1" aria-label="Уменьшить количество" title="Уменьшить на 1"><span aria-hidden="true">▼</span></button></div><span id="add-quantity-error" class="field-error" aria-live="polite" aria-atomic="true"></span></div>
             <div class="field"><label for="add-unit">Единица</label><select id="add-unit" name="unit"><option>шт.</option><option>кг</option><option>г</option><option>л</option><option>мл</option><option>уп.</option></select></div>
-            <button class="primary add-button" type="submit">Добавить</button>
+            <button class="primary add-button" type="submit" aria-label="Добавить покупку" title="Добавить покупку"><span class="add-button-text">Добавить</span><span class="add-button-check" aria-hidden="true">✓</span></button>
           </form>
         </section>
         <section class="card list-card" aria-labelledby="list-title">

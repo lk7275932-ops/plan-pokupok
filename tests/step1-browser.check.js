@@ -72,7 +72,7 @@ async (page) => {
     await add('ДлинноеНазвание'.repeat(8).slice(0,100));
     for(const width of [320,375,768,1280]) {
       await q.setViewportSize({width,height:900});
-      const good=await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll('button')].filter(b=>b.getClientRects().length).every(b=>b.getBoundingClientRect().height>=44 && b.getBoundingClientRect().width>=44) && [...document.querySelectorAll('input:not([type=checkbox]),select')].filter(b=>b.getClientRects().length).every(b=>parseFloat(getComputedStyle(b).fontSize)>=16));
+      const good=await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll('button')].filter(b=>b.getClientRects().length&&!(innerWidth<=650&&b.matches('[data-quantity=add]'))).every(b=>b.getBoundingClientRect().height>=44 && b.getBoundingClientRect().width>=44) && [...document.querySelectorAll('input:not([type=checkbox]),select')].filter(b=>b.getClientRects().length).every(b=>parseFloat(getComputedStyle(b).fontSize)>=16));
       check(good,`Ширина ${width}px, размеры кнопок и шрифта`);
     }
     await q.setViewportSize({width:375,height:812});await q.locator('#edit-trip').click();

@@ -28,12 +28,12 @@ async(page)=>{
   const updates=await page.context().browser().newContext();let q=await updates.newPage();try{
     await q.goto(origin);await ready(q);await q.locator('#create-trip').click();await q.locator('#save-trip').click();await q.locator('#add-name').fill('Черновик');const old=await q.evaluate(()=>localStorage.getItem('shopping-planner.state.v1'));
     await q.evaluate(async()=>{await caches.open('foreign-cache');await caches.open('shopping-planner-app-%2Fnested%2F-other');});
-    await control({version:'v4',fail:'icons/icon-512.png'});await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();await r.update();});await q.waitForTimeout(1000);
-    check(await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return !!r.active&&!r.waiting&&(await caches.keys()).includes('shopping-planner-app-%2F-v3');}),'Сбой обновления сохраняет старую версию');
-    await control({version:'v4',fail:null});await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();await r.update();});await q.locator('#update-status').waitFor({state:'visible'});
+    await control({version:'v5',fail:'icons/icon-512.png'});await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();await r.update();});await q.waitForTimeout(1000);
+    check(await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return !!r.active&&!r.waiting&&(await caches.keys()).includes('shopping-planner-app-%2F-v4');}),'Сбой обновления сохраняет старую версию');
+    await control({version:'v5',fail:null});await q.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();await r.update();});await q.locator('#update-status').waitFor({state:'visible'});
     check(await q.locator('#add-name').inputValue()==='Черновик'&&await q.evaluate(()=>localStorage.getItem('shopping-planner.state.v1'))===old,'Ожидающее обновление не прерывает ввод и не меняет данные');check(await q.evaluate(async()=>!!(await navigator.serviceWorker.getRegistration()).waiting),'Новая версия ждёт закрытия вкладок');
     await q.close();await new Promise(r=>setTimeout(r,300));q=await updates.newPage();await q.goto(origin);await ready(q);
-    const names=await q.evaluate(()=>caches.keys());check(names.includes('shopping-planner-app-%2F-v4')&&!names.includes('shopping-planner-app-%2F-v3')&&names.includes('foreign-cache')&&names.includes('shopping-planner-app-%2Fnested%2F-other'),'Активация очищает только старый кэш этой папки');check(await q.evaluate(()=>localStorage.getItem('shopping-planner.state.v1'))===old,'Данные сохраняются при обновлении');
+    const names=await q.evaluate(()=>caches.keys());check(names.includes('shopping-planner-app-%2F-v5')&&!names.includes('shopping-planner-app-%2F-v4')&&names.includes('foreign-cache')&&names.includes('shopping-planner-app-%2Fnested%2F-other'),'Активация очищает только старый кэш этой папки');check(await q.evaluate(()=>localStorage.getItem('shopping-planner.state.v1'))===old,'Данные сохраняются при обновлении');
     await updates.setOffline(true);await q.reload();await ready(q);check(await q.locator('#trip').isVisible(),'Обновлённая версия открывается офлайн');
   }finally{await updates.close();await control({reset:true});}
   return {passed:checks.length,checks};
