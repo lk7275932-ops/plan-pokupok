@@ -32,3 +32,15 @@ dialog{color:#172033;background:white;width:min(440px,calc(100% - 32px));max-hei
   #add-form .add-button-text{display:none}
   #add-form .add-button-check{display:inline;font-size:23px;line-height:1}
 }
+
+/* Компактная шапка текущего похода на телефоне. */
+.edit-trip-icon{display:none}
+@media(max-width:650px){
+  .navigation{margin-bottom:12px;padding-bottom:8px}
+  #trip>.trip-heading{flex-direction:row;align-items:center;gap:8px;margin-bottom:10px}
+  #trip>.trip-heading .eyebrow,#trip-date,.edit-trip-text{display:none}
+  #trip-title{font-size:22px;line-height:1.25}
+  #edit-trip{display:grid;place-items:center;width:44px;height:44px;padding:10px}
+  #edit-trip .edit-trip-icon{display:block;width:22px;height:22px}
+  #trip>.add-card{margin-bottom:12px}
+}

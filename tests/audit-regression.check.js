@@ -35,18 +35,18 @@ async(page)=>{
   }
   const updates=await page.context().browser().newContext();try{
     let q=await updates.newPage();await q.goto(origin);await ready(q);await create(q);await add(q,'Сохранено');const before=await q.evaluate(key=>localStorage.getItem(key),KEY);
-    await control({version:'v5',cssMarker:'NEW-RELEASE',staleHashes:true});await q.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});
-    await q.waitForFunction(async()=>{const reg=await navigator.serviceWorker.getRegistration();return !reg.installing&&!reg.waiting&&!(await caches.keys()).includes('shopping-planner-app-%2F-v5');});
-    check(await q.evaluate(async()=>!!await (await caches.open('shopping-planner-app-%2F-v4')).match(new URL('style.css',location.href))),'Несогласованный выпуск отвергается, старый кэш сохранён');
-    await control({version:'v5',cssMarker:'NEW-RELEASE',staleHashes:false});await q.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});await q.locator('#update-status').waitFor({state:'visible'});
-    await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v4');await cache.delete(new URL('style.css',location.href));});
-    const result=await q.evaluate(async()=>{const response=await fetch('./style.css');const cache=await caches.open('shopping-planner-app-%2F-v4');return {status:response.status,cached:!!await cache.match(new URL('style.css',location.href))};});
+    await control({version:'v6',cssMarker:'NEW-RELEASE',staleHashes:true});await q.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});
+    await q.waitForFunction(async()=>{const reg=await navigator.serviceWorker.getRegistration();return !reg.installing&&!reg.waiting&&!(await caches.keys()).includes('shopping-planner-app-%2F-v6');});
+    check(await q.evaluate(async()=>!!await (await caches.open('shopping-planner-app-%2F-v5')).match(new URL('style.css',location.href))),'Несогласованный выпуск отвергается, старый кэш сохранён');
+    await control({version:'v6',cssMarker:'NEW-RELEASE',staleHashes:false});await q.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});await q.locator('#update-status').waitFor({state:'visible'});
+    await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v5');await cache.delete(new URL('style.css',location.href));});
+    const result=await q.evaluate(async()=>{const response=await fetch('./style.css');const cache=await caches.open('shopping-planner-app-%2F-v5');return {status:response.status,cached:!!await cache.match(new URL('style.css',location.href))};});
     check(result.status===503&&!result.cached,'Новый CSS не обслуживается и не записывается старым worker');
     const repair=await q.evaluate(()=>new Promise(resolve=>{const c=new MessageChannel();c.port1.onmessage=e=>resolve(e.data);navigator.serviceWorker.controller.postMessage({type:'PREPARE_OFFLINE'},[c.port2]);}));
-    check(!repair.ready&&await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v4');return !await cache.match(new URL('style.css',location.href));}),'Повтор подготовки не смешивает выпуски');
+    check(!repair.ready&&await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v5');return !await cache.match(new URL('style.css',location.href));}),'Повтор подготовки не смешивает выпуски');
     check(await q.evaluate(key=>localStorage.getItem(key),KEY)===before,'Отказ несовместимого файла не меняет покупки');
     await q.close();await new Promise(resolve=>setTimeout(resolve,300));q=await updates.newPage();await q.goto(origin);await ready(q);
-    check(await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v5');return (await (await cache.match(new URL('style.css',location.href))).text()).includes('NEW-RELEASE');}),'После закрытия вкладок применяется весь новый выпуск');
+    check(await q.evaluate(async()=>{const cache=await caches.open('shopping-planner-app-%2F-v6');return (await (await cache.match(new URL('style.css',location.href))).text()).includes('NEW-RELEASE');}),'После закрытия вкладок применяется весь новый выпуск');
     await updates.setOffline(true);await q.reload();await ready(q);check(await q.locator('.item').count()===1,'Новый выпуск работает офлайн с прежними данными');
   }finally{await updates.close();await control({reset:true});}
   return {passed:checks.length,checks};
